@@ -10,9 +10,8 @@ var trello_token = process.env.TRELLO_TOKEN; // TODO: replace with stored auth f
 var t = new Trello(public_key, trello_token);
 var _ = require("underscore");
 
-app.get('/dsdc', function(req, res){
-  // get JSON for DSDC events and send back
-    t.get("/1/boards/4ffd9be44795a71d1101b2bc", //?cards=open&card_fields=name,due,labels,idList,pos&fields=name,desc&lists=open", 
+var get_dsdc = function(callback) {
+    t.get("/1/boards/4ffd9be44795a71d1101b2bc", 
         { cards: "open", card_fields: ["name", "due", "labels", "idList", "pos"], fields: ["name", "desc"], lists: "open"},
         function(err, data) {
         if (err) throw err;
@@ -20,9 +19,29 @@ app.get('/dsdc', function(req, res){
         private_id = _.findWhere(data.lists, {name: "Private"}).id;
 
         data.cards = _.filter(data.cards, function(card) { return card.idList != private_id; });
-        res.send(data);
-        
+//        console.log(data);
+//        console.log(callback);
+        callback(data);
     });
+};
+
+app.get('/dsdc', function(req, res){
+  // get JSON for DSDC events and send back
+  //res.send(get_dsdc());
+  console.log("Got request for DSDC");
+  get_dsdc(res.send.bind(res));
+  //res.send("asdf");
+//    t.get("/1/boards/4ffd9be44795a71d1101b2bc", //?cards=open&card_fields=name,due,labels,idList,pos&fields=name,desc&lists=open", 
+//        { cards: "open", card_fields: ["name", "due", "labels", "idList", "pos"], fields: ["name", "desc"], lists: "open"},
+//        function(err, data) {
+//        if (err) throw err;
+//        
+//        private_id = _.findWhere(data.lists, {name: "Private"}).id;
+//
+//        data.cards = _.filter(data.cards, function(card) { return card.idList != private_id; });
+//        res.send(data);
+//        
+//    });
 });
 
 // TODO: dsdc.html that generates a nice table
