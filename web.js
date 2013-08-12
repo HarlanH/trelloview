@@ -38,7 +38,9 @@ app.get('/dsdc', function(req, res){
 var make_table = function(callback, data) {
     
     // convert the object to html here
-    var rData = {records: data.cards}; 
+    var soon = _.filter(data.cards, function(card) { return !_.isNull(card.due); });
+    var notsoon = _.filter(data.cards, function(card) { return _.isNull(card.due); });
+    var rData = {records: soon.concat(notsoon) }; 
     var page = fs.readFileSync("dsdc.html", "utf8"); // bring in the HTML file
     var html = mustache.to_html(page, rData);
     callback(html);
